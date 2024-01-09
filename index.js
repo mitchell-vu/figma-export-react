@@ -247,10 +247,11 @@ const run = async () => {
   const icons = iconUrls.map((icon) => downloadImage(icon.image, removeFromName(icon.name)));
   const results = await Promise.all(icons);
 
+  // Clear index.jsx file
+  fs.writeFileSync(path.resolve('dist/index.jsx'), '', 'utf8');
+
   // Export React component
   // e.g. Icon/Regular/sun.svg -> SunSvg
-  // Clear index.jsx file
-  fs.writeFileSync(path.resolve('index.jsx'), '', 'utf8');
   results.forEach(({ name }) => {
     exportReactComponent(name);
   })
