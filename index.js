@@ -4,8 +4,9 @@ import dotenv from 'dotenv';
 import fs from 'fs';
 import { mkdirp } from 'mkdirp';
 import path from 'path';
+import { cleanUpSvg, exportReactComponent } from './src/export.js';
 import figmaClient from './src/figma-client.js';
-import { kebabToPascal, snakeToKebab } from './src/utils.js';
+import { snakeToKebab } from './src/utils.js';
 
 dotenv.config();
 
@@ -226,19 +227,6 @@ const downloadImage = async (url, name) => {
   });
 };
 
-/**
- * Export React component into `index.jsx` file
- * e.g. Icon/Regular/sun.svg -> SunSvg
- * @param {*} svgFileName 
- * @example `Icon/Regular/sun.svg`  -> export { default as SunSvg } from './sun.svg';
- */
-const exportReactComponent = (svgFileName) => {
-  const pascalCaseName = kebabToPascal(svgFileName.replace('.svg', ''));
-  const exportStatement = `export { default as ${pascalCaseName}Svg } from './${svgFileName}';\n`;
-
-  fs.appendFileSync(path.resolve('index.jsx'), exportStatement, 'utf8');
-}
-
 const run = async () => {
   const iconFrames = await getFigmaFile();
   const iconUrls = await getImages(iconFrames);
@@ -253,6 +241,7 @@ const run = async () => {
   // Export React component
   // e.g. Icon/Regular/sun.svg -> SunSvg
   results.forEach(({ name }) => {
+    cleanUpSvg(path.resolve(config.exportPath, name));
     exportReactComponent(name);
   })
 
